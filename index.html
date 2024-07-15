@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Três Corações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #header {
+            background-color: #B4B4B4;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        #header img {
+            width: 120px;
+        }
+
+        #header .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        #header .user-info img {
+            width: 50px;
+            margin-left: 20px;
+        }
+
+        #header .user-info span {
+            font-size: 20px;
+            color: green;
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        #header .user-info span::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: green;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        #quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
+            margin-top: 20px;
+            box-sizing: border-box;
+            border: 1px solid black;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.visible {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button {
+            background-color: #FF7100;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 18px;
+            border-radius: 10px;
+        }
+
+        button:hover {
+            background-color: #e66600;
+        }
+
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .popup-content img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .popup-content p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .popup-content input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-weight: bold;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        .option label {
+            font-size: 16px;
+        }
+
+        .question-image {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar-inner {
+            height: 20px;
+            width: 0;
+            background-color: #FF7100;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            #header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+            }
+
+            #header img {
+                width: 90px;
+            }
+
+            #header .user-info {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+            }
+
+            #header .user-info img {
+                width: 40px;
+                margin-left: 10px;
+            }
+
+            #header .user-info span {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+
+        .congrats-message {
+            text-align: left;
+            color: green;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .congrats-gif {
+            display: block;
+            margin: 0 auto 20px;
+            width: 100px; /* Diminui o tamanho do GIF */
+        }
+
+        .result-text {
+            text-align: left;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <img src="https://i.imgur.com/A8UlFAd.png" alt="Três Corações">
+        <div class="user-info">
+            <span id="user-name">Conectado - </span>
+            <img src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png" alt="User Icon">
+        </div>
+    </div>
+
+    <div id="quiz-container">
+        <!-- Tela de Perguntas -->
+        <div id="question-screen" class="screen visible">
+            <img id="question-image" class="question-image" src="" alt="Imagem da Pergunta">
+            <p id="question-number" class="question">Pergunta 1 de 7</p>
+            <p id="question-text" class="question">Texto da Pergunta</p>
+            <div id="options-container">
+                <!-- Opções de resposta serão geradas aqui -->
+            </div>
+            <button id="next-button" onclick="nextQuestion()" style="float: right;">Próxima</button>
+        </div>
+
+        <!-- Tela de Carregamento -->
+        <div id="loading-screen" class="screen hidden">
+            <p>Aguarde, analisando respostas...</p>
+            <div class="progress-bar">
+                <div class="progress-bar-inner" id="progress-bar-inner">0%</div>
+            </div>
+        </div>
+
+        <!-- Tela de Resultado -->
+        <div id="result-screen" class="screen hidden">
+            <p id="congrats-message" class="congrats-message"></p>
+            <img src="https://i.pinimg.com/originals/89/86/fe/8986fef7a58272135c7c5d006a312554.gif" alt="Verificado" class="congrats-gif">
+            <p class="result-text">Você acertou incríveis 70% das perguntas, apenas 10% das pessoas conseguem chegar a isso, você desbloqueou uma premiação no site e tem direito a resgatar um dos prêmios da promoção inteiramente grátis, ao clicar em resgatar prêmio você será redirecionado ao site da promoção e poderá escolher o item que desejar.</p>
+            <button id="redeem-button" style="display: block; margin: 0 auto; width: 80%;">Resgatar prêmio agora</button>
+        </div>
+    </div>
+
+    <!-- Popup de Boas-vindas -->
+    <div id="welcome-popup" class="popup">
+        <div class="popup-content">
+            <img src="https://i.imgur.com/A8UlFAd.png" alt="Três Corações">
+            <p>Bem-vindo ao Quiz da Três Corações! Participe dessa promoção limitada e concorra a uma cafeteira inteiramente grátis. Responda as perguntas a seguir e descubra se você é um dos sortudos. Boa sorte!</p>
+            <input type="text" id="username-input" placeholder="Digite seu nome">
+            <button onclick="startQuiz()">Começar</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let userName = "";
+        const totalQuestions = 7;
+        const questions = [
+            {
+                text: "Qual é o slogan da marca Três Corações?",
+                options: ["O café que vale por três", "Amor, carinho e sabor", "Tradição em cada xícara", "Sabor que apaixona"],
+                answer: 1,
+                image: "https://ocafeperfeito.com/wp-content/uploads/cafeteira-3-coracoes-touch-e1681995398173.png"
+            },
+            {
+                text: "Qual é o principal produto da Três Corações?",
+                options: ["Chá", "Café", "Chocolate", "Leite"],
+                answer: 1,
+                image: "https://loja.cestanobre.com.br/storage/blog/produtos-3-coracoes.jpg"
+            },
+            {
+                text: "Em que ano a Três Corações foi fundada?",
+                options: ["1959", "1961", "1965", "1970"],
+                answer: 0,
+                image: "https://www.3coracoes.com.br/wp-content/uploads/2017/07/cupido.jpg"
+            },
+            {
+                text: "Qual destas é uma linha de produtos da Três Corações?",
+                options: ["Três Sabores", "Três Momentos", "Três Variedades", "Três Aroma"],
+                answer: 1,
+                image: "https://marcaspelomundo.com.br/wp-content/uploads/2020/11/Cafe-3-Coracoes.jpeg"
+            },
+            {
+                text: "Qual é a origem do nome 'Três Corações'?",
+                options: ["Cidade de Três Corações", "Três ingredientes principais", "Três fundadores", "Três regiões produtoras"],
+                answer: 0,
+                image: "https://publicidadeecerveja.com/wp-content/uploads/2018/07/unnamed8.jpg"
+            },
+            {
+                text: "Qual é a missão da Três Corações?",
+                options: ["Vender mais", "Espalhar felicidade", "Oferecer produtos de qualidade", "Expandir globalmente"],
+                answer: 2,
+                image: "https://universidadedocafe.com/wp-content/uploads/2023/08/tres-coracoes-barista-e-boa.png"
+            },
+            {
+                text: "Qual é um dos valores principais da Três Corações?",
+                options: ["Inovação", "Tradição", "Lucro", "Sustentabilidade"],
+                answer: 3,
+                image: "https://www.maquinascafeexpresso.com/wp-content/uploads/2019/12/cafeteira-tres-cora%C3%A7%C3%B5es-mimo-1-e1575552009213.jpg"
+            }
+        ];
+
+        function showPopup() {
+            document.getElementById('welcome-popup').style.display = 'flex';
+        }
+
+        function startQuiz() {
+            userName = document.getElementById('username-input').value;
+            if (userName.trim() === "") {
+                alert("Por favor, digite seu nome.");
+                return;
+            }
+            document.getElementById('user-name').innerText += ' ' + userName;
+            document.getElementById('welcome-popup').style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').innerText = `Pergunta ${currentQuestion + 1} de ${totalQuestions}`;
+            document.getElementById('question-text').innerText = question.text;
+            document.getElementById('question-image').src = question.image;
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.innerHTML = `<input type="radio" name="option" id="option${index}" value="${index}">
+                                            <label for="option${index}">${option}</label>`;
+                optionsContainer.appendChild(optionElement);
+            });
+            if (currentQuestion === totalQuestions - 1) {
+                document.getElementById('next-button').innerText = "Finalizar Quiz";
+                document.getElementById('next-button').setAttribute('onclick', 'finishQuiz()');
+            } else {
+                document.getElementById('next-button').setAttribute('onclick', 'nextQuestion()');
+            }
+        }
+
+        function nextQuestion() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (selectedOption) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                alert('Por favor, selecione uma resposta.');
+            }
+        }
+
+        function finishQuiz() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (selectedOption) {
+                document.getElementById('question-screen').classList.remove('visible');
+                document.getElementById('question-screen').classList.add('hidden');
+                showLoadingScreen();
+            } else {
+                alert('Por favor, selecione uma resposta.');
+            }
+        }
+
+        function showLoadingScreen() {
+            document.getElementById('loading-screen').classList.remove('hidden');
+            document.getElementById('loading-screen').classList.add('visible');
+            let progress = 0;
+            const progressBarInner = document.getElementById('progress-bar-inner');
+            const interval = setInterval(() => {
+                progress += 1;
+                progressBarInner.style.width = progress + '%';
+                progressBarInner.innerText = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    showResultScreen();
+                }
+            }, 70);
+        }
+
+        function showResultScreen() {
+            document.getElementById('loading-screen').classList.remove('visible');
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('result-screen').classList.add('visible');
+            document.getElementById('congrats-message').innerText = `Parabéns ${userName}!`;
+        }
+
+        document.getElementById('redeem-button').onclick = function() {
+            window.location.href = `https://3coracoes.tiendamiix.online?user=${encodeURIComponent(userName)}`;
+        };
+    </script>
+</body>
+</html>
